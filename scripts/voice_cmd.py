@@ -21,7 +21,7 @@ class cmd_vel:
         rospy.on_shutdown(self.cleanup)
 
         # 初始化默认速度
-        self.speed_Linear = 1
+        self.speed_Linear = 0.2
         self.speed_Angular = 0.5
         self.msg = Twist()
         # self.tts="好的"
@@ -32,7 +32,8 @@ class cmd_vel:
         self.oscil_rate=10
 
         # 发布与订阅
-        self.pub_ = rospy.Publisher('/turtle1/cmd_vel', Twist,queue_size=1)
+        # self.pub_ = rospy.Publisher('/turtle1/cmd_vel', Twist,queue_size=1)
+        self.pub_ = rospy.Publisher('/cmd_vel_mux/input/teleop', Twist,queue_size=1)
         # self.pubtts_ = rospy.Publisher('voice_feedback',String,queue_size=10)
         rospy.Subscriber('voice_txt', String, self.cmd_Extraction)
 

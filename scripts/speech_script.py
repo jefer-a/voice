@@ -5,8 +5,11 @@
 import os,sys
 import time
 
-def select(txtFile):
+def select():
+    script_path=os.path.dirname(__file__)
+    txt_path=script_path+'/speech.txt'
     while True:
+        txtFile=open(txt_path,'r',encoding="utf-8")
         print("请选择发布模式：")
         print("1.自动延时逐条发布")
         print("2.手动延迟逐条发布")
@@ -26,7 +29,8 @@ def select(txtFile):
         if 'y' in option:
             continue
         else:
-            break
+            txtFile.close()
+            return
 
 def publisher_one(txtFile):
     for commod in txtFile.readlines():
@@ -60,7 +64,7 @@ def publisher_three(txtFile):
         try:
             if select_commod=='n':
                 print("退出模式3!")
-                break
+                return
         except:
             print('无效编号，请再次输入!')
 
@@ -74,9 +78,6 @@ def cmd_pub(commod,delay=1):
 
 if __name__ == "__main__":
     try:
-        script_path=os.path.dirname(__file__)
-        txt_path=script_path+'/speech.txt'
-        txtFile=open(txt_path,'r',encoding="utf-8")
-        select(txtFile)
+        select()
     except:
-        print("speech.txt文件不存在")
+        print("程序异常退出/speech.txt文件不存在")
