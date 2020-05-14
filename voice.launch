@@ -1,8 +1,0 @@
-<launch>
-	<node name="voice_cmd_node" pkg="voice"
-		  type="voice_cmd.py" output="screen"/>
-	<node name="voice_asr_node" pkg="voice"
-		  type="voice_asr_node" output="screen"/>
-	<node name="turtlesim_node" pkg="turtlesim"
-		  type="turtlesim_node"/>
-</launch>
