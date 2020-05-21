@@ -3,6 +3,10 @@
 		  type="voice_cmd.py" output="screen"/>
 	<node name="speech_script" pkg="voice" launch-prefix="gnome-terminal -e"
 		  type="speech_script.py" output="screen"/>
+	<!-- 
+	<node name="turtlesim_node" pkg="turtlesim"
+		  type="turtlesim_node"/>
+	-->
 	<node name="turtlesim_node" pkg="turtlesim"
 		  type="turtlesim_node"/>
 </launch>
