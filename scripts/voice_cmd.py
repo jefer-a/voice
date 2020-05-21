@@ -89,7 +89,7 @@ class cmd_vel:
         except:
             # 非有效路径控制指令，退出回调函数
             return
-        print(router)
+        # print(router)
 
         # 圆形路径
         if router==u'\u5706':
@@ -98,20 +98,20 @@ class cmd_vel:
                 regex2=self.pattern2.search(commond_Str.decode('utf-8'))
                 way=regex2.group('way')
                 length=regex2.group('length')
-                print(way)
-                print(length)
+                # print(way)
+                # print(length)
             except:
                 return
             length=float(self.digit.get(length.encode('utf-8'),length))
             direction=self.direc(regex2)
-            print(direction)
+            # print(direction)
             if way==u'\u534A\u5F84':
                 radius=length
             elif way==u'\u76F4\u5F84':
                 radius=length/2
             else:
                 radius=0
-            print(radius)
+            # print(radius)
             if radius:
                 oscil_Buff=self.msg_Twist(2*radius*math.pi,1)
                 self.oscillation[1]=oscil_Buff.copy()
@@ -122,18 +122,18 @@ class cmd_vel:
                 
         # 正方形
         elif router==u'\u6B63\u65B9\u5F62':
-            print("flagtype=正方形")
+            # print("flagtype=正方形")
             try:
                 regex2=self.pattern2.search(commond_Str.decode('utf-8'))
                 way=regex2.group('way')
                 length=regex2.group('length')
-                print(way)
-                print(length)
+                # print(way)
+                # print(length)
             except:
                 return
             length=float(self.digit.get(length.encode('utf-8'),length))
             direction=self.direc(regex2)
-            print(direction)
+            # print(direction)
             if way==u'\u8FB9\u957F':
                 length_buff=self.msg_Twist(length,1)
                 angular_buff=self.msg_Twist(0.5*math.pi,2,direction)
@@ -145,20 +145,20 @@ class cmd_vel:
 
         # 长方形 矩形
         elif router in (u'\u957F\u65B9\u5F62', u'\u77E9\u5F62'):
-            print("flagtype=长方形")
+            # print("flagtype=长方形")
             try:
                 regex3=self.pattern3.search(commond_Str.decode('utf-8'))
                 length=regex3.group('length')
                 wide=regex3.group('wide')
-                print(length)
-                print(wide)
+                # print(length)
+                # print(wide)
             except:
                 try:
                     regex3=self.pattern4.search(commond_Str.decode('utf-8'))
                     length=regex3.group('length')
                     wide=regex3.group('wide')
-                    print(length)
-                    print(wide)
+                    # print(length)
+                    # print(wide)
                 except:
                     return
             length=float(self.digit.get(length.encode('utf-8'),length))
@@ -178,13 +178,13 @@ class cmd_vel:
 
         # 前进 向前
         elif router in (u'\u524D\u8FDB',u'\u5411\u524D'):
-            print("flagtype=直线")
+            # print("flagtype=直线")
             try:
                 regex4=self.pattern2.search(commond_Str.decode('utf-8'))
                 way=regex4.group('way')
                 length=regex4.group('length')
-                print(way)
-                print(length)
+                # print(way)
+                # print(length)
                 length=float(self.digit.get(length.encode('utf-8'),length))
                 if way in (u'\u524D\u8FDB',u'\u5411\u524D'):
                     length_buff=self.msg_Twist(length,1)
@@ -192,14 +192,14 @@ class cmd_vel:
                     self.oscillation['msg_Num']=1
                     self.oscillation['oscil_Flag']=1
             except:
-                print("前进3")
+                # print("前进3")
                 self.msg.linear.x = self.speed_Linear
                 self.msg.angular.z = 0
                 self.oscillation['oscil_Flag']=0
 
         # 加速
     	elif router==u'\u52A0\u901F':
-            print("加速11")
+            # print("加速11")
             if self.oscillation['oscil_Flag']!=1 and\
              self.msg.linear.x>0 and self.msg.linear.x*2<=2.5:
                 if self.msg.linear.z!=0:
@@ -210,7 +210,7 @@ class cmd_vel:
 
         # 减速
         elif router==u'\u51CF\u901F':
-            print("减速2")
+            # print("减速2")
             if self.oscillation['oscil_Flag']!=1 and self.msg.linear.x-0.2>0:
                 if self.msg.linear.z!=0:
                     self.msg.linear.x = self.msg.linear.x/2
@@ -220,7 +220,7 @@ class cmd_vel:
 
         # 左转
         elif router==u'\u5DE6\u8F6C':
-            print("左转4")
+            # print("左转4")
             if self.msg.linear.x != 0:
                 if self.msg.angular.z < self.msg.linear.x:
                     self.msg.angular.z += 0.1
@@ -231,7 +231,7 @@ class cmd_vel:
 
         # 右转
         elif router==u'\u53F3\u8F6C':   
-            print("右转5")
+            # print("右转5")
             if self.msg.linear.x != 0:
                 if self.msg.angular.z > 0:
                     self.msg.angular.z = -0.1
@@ -245,13 +245,13 @@ class cmd_vel:
 
         # 后退
         elif router==u'\u540E\u9000':
-            print("后退6")
+            # print("后退6")
             try:
                 regex4=self.pattern2.search(commond_Str.decode('utf-8'))
                 way=regex4.group('way')
                 length=regex4.group('length')
-                print(way)
-                print(length)
+                # print(way)
+                # print(length)
                 length=float(self.digit.get(length.encode('utf-8'),length))
                 if way==u'\u540E\u9000':
                     length_buff=self.msg_Twist(length,1,-1)
@@ -265,12 +265,12 @@ class cmd_vel:
 
         # 停止 立定
         elif router in (u'\u505C\u6B62',u'\u7ACB\u5B9A'):
-            print("停止7")
+            # print("停止7")
             self.oscillation['oscil_Flag']=2
 
         # 继续 恢复
         elif router in (u'\u7EE7\u7EED',u'\u6062\u590D'):
-            print("继续")
+            # print("继续")
             self.oscillation['oscil_Flag']=1
 
 
@@ -287,7 +287,7 @@ class cmd_vel:
     def direc(self,regex):
         try:
             direction=regex.group('direction')[0:1]
-            print(direction)
+            # print(direction)
             if direction in (u'\u6B63',u'\u987A'):
                 return -1
             else:

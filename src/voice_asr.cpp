@@ -73,7 +73,7 @@ void on_speech_end(int reason)
 }
 
 //麦克风侦测，在线语言识别
-static void demo_mic(const char* session_begin_params)
+static void mic_asr(const char* session_begin_params)
 {
     int errcode;
     int speech_time = 0;
@@ -110,6 +110,7 @@ static void demo_mic(const char* session_begin_params)
 void WakeUp(const std_msgs::String::ConstPtr& msg)
 {
     printf("waking up\r\n");
+    // printf("%s\n",msg.data );
     sleep(10);
     wakeupFlag=1;
     //printf("%d\n%d\n", wakeupFlag,resultFlag);
@@ -152,7 +153,7 @@ int main(int argc, char* argv[])
             }
             printf("Speak in 5 seconds\n");
 
-            demo_mic(session_begin_params);
+            mic_asr(session_begin_params);
 
             printf("5 sec passed\n");
 
