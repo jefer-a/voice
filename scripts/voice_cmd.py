@@ -3,6 +3,8 @@
 
 import roslib; roslib.load_manifest('voice')
 import os, sys
+import playsound
+import random
 import rospy
 import math
 import copy
@@ -40,6 +42,7 @@ class cmd_vel:
         rospy.Subscriber('voice_txt', String, self.cmd_Extraction)
 
         # 预加载部分
+        self.mp3_path=os.path.dirname(__file__)
         self.digit={"一":1,"二":2,"两":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9,"十":10}
 
         # 编译正则表达式
@@ -69,6 +72,9 @@ class cmd_vel:
                         self.oscillation=copy.deepcopy(self.oscillation_backup)
                     elif self.oscillation['msg_Num']==0 and self.oscillation['loop_Flag']==0:
                         self.oscillation['oscil_Flag']=2
+                        # random_mp3=random.choice([1,2,3,4])
+                        # mp3_file=self.mp3_path+'/end'+str(random_mp3)+'.mp3'
+                        # playsound.playsound(mp3_file)
             elif self.oscillation['oscil_Flag']==2:
                 self.msg=Twist()
                 self.oscillation['oscil_Flag']=0
@@ -78,13 +84,13 @@ class cmd_vel:
     def cmd_Extraction(self, msg):
         rospy.loginfo(msg.data)
         #订阅数据字符串预处理
-        commond_Str=msg.data
-        if '关闭' in commond_Str:
+        command_Str=msg.data
+        if '关闭' in command_Str:
             rospy.signal_shutdown("关闭机器人")
 
         # 尝试匹配运动路径控制关键词
         try:
-            regex1=self.pattern1.search(commond_Str.decode('utf-8'))
+            regex1=self.pattern1.search(command_Str.decode('utf-8'))
             router=regex1.group('router')
         except:
             # 非有效路径控制指令，退出回调函数
@@ -93,9 +99,9 @@ class cmd_vel:
 
         # 圆形路径
         if router==u'\u5706':
-            print("flagtype=圆形")
+            # print("flagtype=圆形")
             try:
-                regex2=self.pattern2.search(commond_Str.decode('utf-8'))
+                regex2=self.pattern2.search(command_Str.decode('utf-8'))
                 way=regex2.group('way')
                 length=regex2.group('length')
                 # print(way)
@@ -118,13 +124,13 @@ class cmd_vel:
                 self.oscillation[1]['msg_Buff'].angular.z\
                  =self.oscillation[1]['msg_Buff'].linear.x/radius*direction
                 self.oscillation['msg_Num']=1
-                self.notLoop(commond_Str)
+                self.notLoop(command_Str)
                 
         # 正方形
         elif router==u'\u6B63\u65B9\u5F62':
             # print("flagtype=正方形")
             try:
-                regex2=self.pattern2.search(commond_Str.decode('utf-8'))
+                regex2=self.pattern2.search(command_Str.decode('utf-8'))
                 way=regex2.group('way')
                 length=regex2.group('length')
                 # print(way)
@@ -141,20 +147,20 @@ class cmd_vel:
                 for i in range(1,9,2):
                     self.oscillation[i]=length_buff.copy()
                     self.oscillation[i+1]=angular_buff.copy()
-                self.notLoop(commond_Str)
+                self.notLoop(command_Str)
 
         # 长方形 矩形
         elif router in (u'\u957F\u65B9\u5F62', u'\u77E9\u5F62'):
             # print("flagtype=长方形")
             try:
-                regex3=self.pattern3.search(commond_Str.decode('utf-8'))
+                regex3=self.pattern3.search(command_Str.decode('utf-8'))
                 length=regex3.group('length')
                 wide=regex3.group('wide')
                 # print(length)
                 # print(wide)
             except:
                 try:
-                    regex3=self.pattern4.search(commond_Str.decode('utf-8'))
+                    regex3=self.pattern4.search(command_Str.decode('utf-8'))
                     length=regex3.group('length')
                     wide=regex3.group('wide')
                     # print(length)
@@ -174,13 +180,13 @@ class cmd_vel:
                     self.oscillation[i+1]=angular_buff.copy()
                     self.oscillation[i+2]=wide_Buff.copy()
                     self.oscillation[i+3]=angular_buff.copy()
-                self.notLoop(commond_Str)
+                self.notLoop(command_Str)
 
         # 前进 向前
         elif router in (u'\u524D\u8FDB',u'\u5411\u524D'):
             # print("flagtype=直线")
             try:
-                regex4=self.pattern2.search(commond_Str.decode('utf-8'))
+                regex4=self.pattern2.search(command_Str.decode('utf-8'))
                 way=regex4.group('way')
                 length=regex4.group('length')
                 # print(way)
@@ -222,8 +228,10 @@ class cmd_vel:
         elif router==u'\u5DE6\u8F6C':
             # print("左转4")
             if self.msg.linear.x != 0:
-                if self.msg.angular.z < self.msg.linear.x:
+                if self.msg.angular.z < self.speed_Angular:
                     self.msg.angular.z += 0.1
+                    if self.msg.angular.z > self.speed_Angular:
+                        self.msg.angular.z = self.speed_Angular
                     self.oscillation['oscil_Flag']=0
             else:
                 self.msg.angular.z = self.speed_Angular
@@ -233,11 +241,10 @@ class cmd_vel:
         elif router==u'\u53F3\u8F6C':   
             # print("右转5")
             if self.msg.linear.x != 0:
-                if self.msg.angular.z > 0:
-                    self.msg.angular.z = -0.1
-                    self.oscillation['oscil_Flag']=0
-                elif self.msg.angular.z>-self.msg.linear.x and self.msg.angular.z < 0:
-                    self.msg.angular.z-=0.1
+                if self.msg.angular.z > -self.speed_Angular:
+                    self.msg.angular.z -= 0.1
+                    if self.msg.angular.z < -self.speed_Angular:
+                        self.msg.angular.z = -self.speed_Angular
                     self.oscillation['oscil_Flag']=0
             else:
                 self.msg.angular.z = -self.speed_Angular
@@ -247,7 +254,7 @@ class cmd_vel:
         elif router==u'\u540E\u9000':
             # print("后退6")
             try:
-                regex4=self.pattern2.search(commond_Str.decode('utf-8'))
+                regex4=self.pattern2.search(command_Str.decode('utf-8'))
                 way=regex4.group('way')
                 length=regex4.group('length')
                 # print(way)
@@ -275,6 +282,11 @@ class cmd_vel:
 
 
         # self.pubtts_.publish(self.tts)
+        # random_mp3=random.choice([1,2,3])
+        # mp3_file=self.mp3_path+'/ok'+str(random_mp3)+'.mp3'
+        # playsound.playsound(mp3_file)
+        # print(mp3_file)
+        # os.system("play "+mp3_file)
         print("处理完成")
 
 
@@ -310,8 +322,8 @@ class cmd_vel:
         return temp
 
     # 循环指令匹配
-    def notLoop(self,commond_Str,flag=1):
-        regex_notloop=self.pattern5.search(commond_Str.decode('utf-8'))
+    def notLoop(self,command_Str,flag=1):
+        regex_notloop=self.pattern5.search(command_Str.decode('utf-8'))
         if regex_notloop:
             self.oscillation['loop_Flag']=0
         else:

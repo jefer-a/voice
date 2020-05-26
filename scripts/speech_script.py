@@ -33,44 +33,44 @@ def select():
             return
 
 def publisher_one(txtFile):
-    for commod in txtFile.readlines():
-        if commod[0]=='#':
+    for command in txtFile.readlines():
+        if command[0]=='#':
             continue
-        cmd_pub(commod,15)
+        cmd_pub(command,15)
 
 def publisher_two(txtFile):
-    for commod in txtFile.readlines():
-        cmd_pub(commod)
+    for command in txtFile.readlines():
+        cmd_pub(command)
         print("回车发布下一条指令！")
         input()
 
 def publisher_three(txtFile):
     i=0
-    commods=txtFile.readlines()
+    commands=txtFile.readlines()
     print("请选择路径控制指令编号(退出输入[n]):")
-    for commod in commods:
+    for command in commands:
         i+=1
-        print(str(i)+"："+commod)
+        print(str(i)+"："+command)
     while True:
-        select_commod=input()
+        seleant_commod=input()
         try:
-            if 0 < int(select_commod) <= i:
-                commod=commods[int(select_commod)-1]
-                cmd_pub(commod)
+            if 0 < int(seleant_commod) <= i:
+                command=commands[int(seleant_commod)-1]
+                cmd_pub(command)
                 print("请选择路径控制指令编号(退出输入[n]):")
                 continue
         except :
         	pass
         try:
-            if select_commod=='n':
+            if seleant_commod=='n':
                 print("退出模式3!")
                 return
         except:
             print('无效编号，请再次输入!')
 
-def cmd_pub(commod,delay=1):
-	print(commod)
-	cmd="rostopic pub -1 /voice_txt std_msgs/String "+"\""+commod+"\""
+def cmd_pub(command,delay=1):
+	print("Command:",command)
+	cmd="rostopic pub -1 /voice_txt std_msgs/String "+"\""+command+"\""
 	os.system("gnome-terminal -e "+"\'"+cmd+"\'")
 	time.sleep(delay)
 
