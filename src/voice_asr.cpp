@@ -15,8 +15,8 @@
 #define BUFFER_SIZE 4096
 
 
-//wakeupflag 默认应为0，保持睡眠，测试或实时监听打开为1
-int wakeupFlag   = 1 ;
+//awakenflag 默认应为0，保持睡眠，测试或实时监听打开为1
+int awakenFlag   = 1 ;
 int resultFlag   = 0 ;
 
 //输出结果result
@@ -107,13 +107,13 @@ static void mic_asr(const char* session_begin_params)
 }
 
 //语音唤醒
-void WakeUp(const std_msgs::String::ConstPtr& msg)
+void awakenBC(const std_msgs::String::ConstPtr& msg)
 {
     printf("waking up\r\n");
     // printf("%s\n",msg.data );
     sleep(10);
-    wakeupFlag=1;
-    //printf("%d\n%d\n", wakeupFlag,resultFlag);
+    awakenFlag=1;
+    //printf("%d\n%d\n", awakenFlag,resultFlag);
 }
 
 
@@ -122,22 +122,22 @@ int main(int argc, char* argv[])
 {
     // 初始化ROS
     ros::init(argc, argv, "voice_asr_node");
-    ros::NodeHandle n;
+    ros::NodeHandle node;
     ros::Rate loop_rate(10);
 
     // 声明Publisher和Subscriber
     // 订阅唤醒语音识别的信号
-    ros::Subscriber wakeUpSub = n.subscribe("voiceWakeup", 1000, WakeUp);   
+    ros::Subscriber awaken = node.subscribe("awaken", 1000, awakenBC);   
     // 订阅唤醒语音识别的信号    
-    ros::Publisher voice_txt = n.advertise<std_msgs::String>("voice_txt", 1);  
+    ros::Publisher voice_txt = node.advertise<std_msgs::String>("voice_txt", 1);  
 
     ROS_INFO("Sleeping...");
     int count=1;
     while(ros::ok())
     {
         // 语音识别唤醒
-        if (wakeupFlag){
-            ROS_INFO("Wakeup...");
+        if (awakenFlag){
+            ROS_INFO("awaken...");
             int ret = MSP_SUCCESS;
             const char* login_params = "appid = 5e1d6a08, work_dir = .";
 
@@ -157,8 +157,8 @@ int main(int argc, char* argv[])
 
             printf("5 sec passed\n");
 
-            //wakeupflag 识别完成应关闭为0，实时监听打开为1
-            wakeupFlag=1;
+            //awakenflag 识别完成应关闭为0，实时监听打开为1
+            awakenFlag=1;
             MSPLogout();
         }
 
