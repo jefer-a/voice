@@ -48,12 +48,12 @@ class cmd_vel:
         # 编译正则表达式
         # self.pattern1=re.compile(r'(?P<router>圆|正方形|长方形|矩形|前进|向前|加速|减速|左转|右转|后退|停止|立定|继续|恢复)')
         self.pattern1=re.compile(ur'(?P<router>\u5706|\u6B63\u65B9\u5F62|\u957F\u65B9\u5F62|\u77E9\u5F62|\u524D\u8FDB|\u5411\u524D|\u52A0\u901F|\u51CF\u901F|\u5DE6\u8F6C|\u53F3\u8F6C|\u540E\u9000|\u505C\u6B62|\u7ACB\u5B9A|\u7EE7\u7EED|\u6062\u590D)')
-        # self.pattern2=re.compile(r'(?P<way>半径|直径|边长|前进|向前|后退)[^\d|一|二|三|四|五|六|七|八|九|十](?P<length>\d+|一|二|三|四|五|六|七|八|九|十).*(?P<direction>正|顺|逆)*.*(?P<router>圆|正方形)')
-        self.pattern2=re.compile(ur'(?P<way>\u534A\u5F84|\u76F4\u5F84|\u8FB9\u957F|\u524D\u8FDB|\u5411\u524D|\u540E\u9000)\D*(?P<length>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63(?:.[^\u5F62])|\u987A|\u9006)?')
+        # self.pattern2=re.compile(r'(?P<way>半径|直径|边长|前进|向前|后退)[^\d|一|二|两|三|四|五|六|七|八|九|十](?P<length>\d+|一|二|两|三|四|五|六|七|八|九|十).*(?P<direction>正|顺|逆)*.*(?P<router>圆|正方形)')
+        self.pattern2=re.compile(ur'(?P<way>\u534A\u5F84|\u76F4\u5F84|\u8FB9\u957F|\u524D\u8FDB|\u5411\u524D|\u540E\u9000)\D*?(?P<length>\d+|\u4E00|\u4E8C|\u4E24|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63(?:.[^\u5F62])|\u987A|\u9006)?')
         # 长-宽 类型长方形匹配
-        self.pattern3=re.compile(ur'(?P<way_length>\u957F)\D*(?P<length>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341).*(?P<way_wide>\u5BBD)\D*(?P<wide>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63|\u987A|\u9006)?')
+        self.pattern3=re.compile(ur'(?P<way_length>\u957F)\D*?(?P<length>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341|\u4E24).*(?P<way_wide>\u5BBD)\D*?(?P<wide>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341|\u4E24)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63|\u987A|\u9006)?')
         # 宽-长 类型长方形匹配
-        self.pattern4=re.compile(ur'(?P<way_wide>\u5BBD)\D*(?P<wide>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341).*(?P<way_length>\u957F)\D*(?P<length>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63|\u987A|\u9006)?')
+        self.pattern4=re.compile(ur'(?P<way_wide>\u5BBD)\D*?(?P<wide>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341|\u4E24).*(?P<way_length>\u957F)\D*?(?P<length>\d+|\u4E00|\u4E8C|\u4E09|\u56DB|\u4E94|\u516D|\u4E03|\u516B|\u4E5D|\u5341|\u4E24)[^\u6B63|\u987A|\u9006]*(?P<direction>\u6B63|\u987A|\u9006)?')
         # 循环指令匹配pattern5=re.compile(r'(?P<notLoop>一个|走个)')
         self.pattern5=re.compile(ur'(?P<notLoop>\u8D70\u4E2A|\u4E00\u4E2A)')
 
@@ -94,6 +94,7 @@ class cmd_vel:
             router=regex1.group('router')
         except:
             # 非有效路径控制指令，退出回调函数
+            # print('exit')
             return
         # print(router)
 
@@ -156,6 +157,7 @@ class cmd_vel:
                 regex3=self.pattern3.search(command_Str.decode('utf-8'))
                 length=regex3.group('length')
                 wide=regex3.group('wide')
+                # print("长-宽")
                 # print(length)
                 # print(wide)
             except:
@@ -163,6 +165,7 @@ class cmd_vel:
                     regex3=self.pattern4.search(command_Str.decode('utf-8'))
                     length=regex3.group('length')
                     wide=regex3.group('wide')
+                    # print('宽-长')
                     # print(length)
                     # print(wide)
                 except:
@@ -282,9 +285,9 @@ class cmd_vel:
 
 
         # self.pubtts_.publish(self.tts)
-        # random_mp3=random.choice([1,2,3])
-        # mp3_file=self.mp3_path+'/ok'+str(random_mp3)+'.mp3'
-        # playsound.playsound(mp3_file)
+        random_mp3=random.choice([1,2])
+        mp3_file=self.mp3_path+'/ok'+str(random_mp3)+'.mp3'
+        playsound.playsound(mp3_file)
         # print(mp3_file)
         # os.system("play "+mp3_file)
         print("处理完成")
